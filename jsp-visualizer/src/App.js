@@ -66,6 +66,14 @@ class App extends React.Component {
         ).toJson(this.config));
       });
     });
+    let max_time = 0;
+    for (let idx in answer.process_list) {
+      for (let idx2 in answer.process_list[idx]) {
+        max_time = Math.max(max_time, answer.process_list[idx][idx2].start_time);
+      }
+    }
+    layout.xaxis.range = [0, this.config.unit_width * max_time * 1.1];
+    layout.yaxis.range = [0, this.config.unit_height * problem.machine_size * 1.1];
   }
 
   // この記法で関数を定義するのは、bind に関係がある(TODO: 調査)
@@ -76,9 +84,7 @@ class App extends React.Component {
       const cloned_layout = Object.assign(this.state.layout);
       if (this.is_answer_set()) {
         this.setup_data(cloned_layout, new_problem, this.state.answer);
-        console.log("setup complete layout data");
       }
-      console.log(cloned_layout.shapes.length);
       this.setState({
         ...this.state,
         problem: new_problem,
@@ -94,9 +100,7 @@ class App extends React.Component {
       const cloned_layout = Object.assign(this.state.layout);
       if (this.is_problem_set()) {
         this.setup_data(cloned_layout, this.state.problem, new_answer);
-        console.log("setup complete layout data");
       }
-      console.log(cloned_layout.shapes.length);
       this.setState({
         ...this.state,
         answer: new_answer,
@@ -128,7 +132,13 @@ class App extends React.Component {
       title: this.config.title,
       width: this.config.width,
       height: this.config.height,
-      shapes: [new Rectangle(1, 2, 1).toJson(this.config)]
+      shapes: [new Rectangle(1, 2, 1).toJson(this.config)],
+      xaxis: {
+        range: [0, 10]
+      },
+      yaxis: {
+        range: [0, 10]
+      }
     };
     return layout;
   }
