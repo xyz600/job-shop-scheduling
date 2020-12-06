@@ -2,6 +2,30 @@ import React from 'react';
 import Plot from 'react-plotly.js'
 import Dropzone from 'react-dropzone'
 
+class Rectangle {
+  constructor(start_time, end_time, machine) {
+    this.start_time = start_time;
+    this.end_time = end_time;
+    this.machine = machine;
+  }
+  toJson(config) {
+    return {
+      type: 'rect',
+      xref: 'x',
+      yref: 'y',
+      x0: config.unit_width * this.start_time,
+      x1: config.unit_width * this.end_time,
+      y0: config.unit_height * this.machine,
+      y1: config.unit_height * (this.machine + 1),
+      line: {
+        color: 'rgb(55, 128, 191)',
+        width: 1
+      },
+      fillcolor: 'rgba(55, 128, 191, 0.6)'
+    };
+  }
+}
+
 class App extends React.Component {
 
   constructor() {
@@ -9,7 +33,9 @@ class App extends React.Component {
     this.config = {
       title: "Rectangles Positioned Relative to the Plot and to the Axes",
       height: 1200,
-      width: 1600
+      width: 1600,
+      unit_height: 0.1,
+      unit_width: 0.1
     };
     this.state = {
       problem: {},
@@ -20,13 +46,43 @@ class App extends React.Component {
     };
   }
 
+  is_problem_set = () => {
+    return "operations" in this.state.problem;
+  }
+  is_answer_set = () => {
+    return "process_list" in this.state.answer;
+  }
+
+  setup_data = (layout, problem, answer) => {
+    layout.shapes.splice(0);
+    answer.process_list.forEach((lst, idx) => {
+      lst.forEach(elem => {
+        const machine_id = idx + 1;
+        const duration = problem.operations[elem.operation_id].time;
+        layout.shapes.push(new Rectangle(
+          elem.start_time,
+          elem.start_time + duration,
+          machine_id
+        ).toJson(this.config));
+      });
+    });
+  }
+
   // この記法で関数を定義するのは、bind に関係がある(TODO: 調査)
   onDropProblem = (files) => {
     let reader = new FileReader()
     reader.onloadend = () => {
+      const new_problem = JSON.parse(reader.result);
+      const cloned_layout = Object.assign(this.state.layout);
+      if (this.is_answer_set()) {
+        this.setup_data(cloned_layout, new_problem, this.state.answer);
+        console.log("setup complete layout data");
+      }
+      console.log(cloned_layout.shapes.length);
       this.setState({
         ...this.state,
-        problem: JSON.parse(reader.result)
+        problem: new_problem,
+        layout: cloned_layout
       })
     }
     reader.readAsText(files[0]);
@@ -34,13 +90,22 @@ class App extends React.Component {
   onDropAnswer = (files) => {
     let reader = new FileReader()
     reader.onloadend = () => {
+      const new_answer = JSON.parse(reader.result);
+      const cloned_layout = Object.assign(this.state.layout);
+      if (this.is_problem_set()) {
+        this.setup_data(cloned_layout, this.state.problem, new_answer);
+        console.log("setup complete layout data");
+      }
+      console.log(cloned_layout.shapes.length);
       this.setState({
         ...this.state,
-        answer: JSON.parse(reader.result)
+        answer: new_answer,
+        layout: cloned_layout
       })
     }
     reader.readAsText(files[0]);
   }
+
   onClickDebugCheckBox = () => {
     this.setState({
       ...this.state,
@@ -61,51 +126,9 @@ class App extends React.Component {
   layout_json() {
     const layout = {
       title: this.config.title,
-      xaxis: {
-        range: [0, 4],
-        showgrid: false
-      },
-      yaxis: {
-        range: [0, 4]
-      },
       width: this.config.width,
       height: this.config.height,
-      shapes: [
-
-        //Rectangle reference to the axes
-
-        {
-          type: 'rect',
-          xref: 'x',
-          yref: 'y',
-          x0: 2.5,
-          y0: 0,
-          x1: 3.5,
-          y1: 2,
-          line: {
-            color: 'rgb(55, 128, 191)',
-            width: 3
-          },
-          fillcolor: 'rgba(55, 128, 191, 0.6)'
-        },
-
-        //Rectangle reference to the Plot
-
-        {
-          type: 'rect',
-          xref: 'x',
-          yref: 'y',
-          x0: 0.25,
-          y0: 0,
-          x1: 0.5,
-          y1: 0.5,
-          line: {
-            color: 'rgb(50, 171, 96)',
-            width: 3
-          },
-          fillcolor: 'rgba(50, 171, 96, 0.6)'
-        }
-      ]
+      shapes: [new Rectangle(1, 2, 1).toJson(this.config)]
     };
     return layout;
   }
@@ -135,6 +158,7 @@ class App extends React.Component {
         <Plot
           data={this.state.data}
           layout={this.state.layout}
+          config={{ responsive: true }}
         />
         <Dropzone onDrop={this.onDropProblem}>
           {({ getRootProps, getInputProps }) => (
@@ -157,7 +181,7 @@ class App extends React.Component {
           )}
         </Dropzone>
         <form>
-          <input type="checkbox" name="debug" value="on" checked={this.state.debug} onClick={this.onClickDebugCheckBox}></input>
+          <input type="checkbox" name="debug" value="on" checked={this.state.debug} onChange={this.onClickDebugCheckBox}></input>
           <label> debug mode </label>
         </form>
         {this.debugInfo()}
