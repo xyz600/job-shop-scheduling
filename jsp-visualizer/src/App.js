@@ -1,6 +1,6 @@
 import React from 'react';
 import Plot from 'react-plotly.js'
-import Dropzone from 'react-dropzone';
+import Dropzone from 'react-dropzone'
 
 class App extends React.Component {
 
@@ -11,32 +11,41 @@ class App extends React.Component {
       height: 1200,
       width: 1600
     };
-    this.onDropProblem = (files) => {
-      let reader = new FileReader()
-      reader.onloadend = () => {
-        this.setState({
-          ...this.state,
-          problem: JSON.parse(reader.result)
-        })
-      }
-      reader.readAsText(files[0]);
-    };
-    this.onDropAnswer = (files) => {
-      let reader = new FileReader()
-      reader.onloadend = () => {
-        this.setState({
-          ...this.state,
-          answer: JSON.parse(reader.result)
-        })
-      }
-      reader.readAsText(files[0]);
-    };
     this.state = {
       problem: {},
       answer: {},
       data: this.data_json(),
-      layout: this.layout_json()
+      layout: this.layout_json(),
+      debug: true
     };
+  }
+
+  // この記法で関数を定義するのは、bind に関係がある(TODO: 調査)
+  onDropProblem = (files) => {
+    let reader = new FileReader()
+    reader.onloadend = () => {
+      this.setState({
+        ...this.state,
+        problem: JSON.parse(reader.result)
+      })
+    }
+    reader.readAsText(files[0]);
+  }
+  onDropAnswer = (files) => {
+    let reader = new FileReader()
+    reader.onloadend = () => {
+      this.setState({
+        ...this.state,
+        answer: JSON.parse(reader.result)
+      })
+    }
+    reader.readAsText(files[0]);
+  }
+  onClickDebugCheckBox = () => {
+    this.setState({
+      ...this.state,
+      debug: !this.state.debug
+    })
   }
 
   data_json() {
@@ -101,6 +110,25 @@ class App extends React.Component {
     return layout;
   }
 
+  debugInfo = () => {
+    if (this.state.debug) {
+      return (
+        <div>
+          <div>
+            problem = {JSON.stringify(this.state.problem)}
+          </div>
+          <div>
+            answer = {JSON.stringify(this.state.answer)}
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div> no debug information. </div>
+      );
+    }
+  }
+
   render() {
     return (
       <div>
@@ -128,12 +156,11 @@ class App extends React.Component {
             </section>
           )}
         </Dropzone>
-        <div>
-          problem = {JSON.stringify(this.state.problem)}
-        </div>
-        <div>
-          answer = {JSON.stringify(this.state.answer)}
-        </div>
+        <form>
+          <input type="checkbox" name="debug" value="on" checked={this.state.debug} onClick={this.onClickDebugCheckBox}></input>
+          <label> debug mode </label>
+        </form>
+        {this.debugInfo()}
       </div>
     );
   }
