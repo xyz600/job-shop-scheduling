@@ -1,5 +1,6 @@
 import React from 'react';
 import Plot from 'react-plotly.js'
+import Dropzone from 'react-dropzone';
 
 class App extends React.Component {
 
@@ -9,6 +10,32 @@ class App extends React.Component {
       title: "Rectangles Positioned Relative to the Plot and to the Axes",
       height: 1200,
       width: 1600
+    };
+    this.onDropProblem = (files) => {
+      let reader = new FileReader()
+      reader.onloadend = () => {
+        this.setState({
+          ...this.state,
+          problem: JSON.parse(reader.result)
+        })
+      }
+      reader.readAsText(files[0]);
+    };
+    this.onDropAnswer = (files) => {
+      let reader = new FileReader()
+      reader.onloadend = () => {
+        this.setState({
+          ...this.state,
+          answer: JSON.parse(reader.result)
+        })
+      }
+      reader.readAsText(files[0]);
+    };
+    this.state = {
+      problem: {},
+      answer: {},
+      data: this.data_json(),
+      layout: this.layout_json()
     };
   }
 
@@ -76,10 +103,38 @@ class App extends React.Component {
 
   render() {
     return (
-      <Plot
-        data={this.data_json()}
-        layout={this.layout_json()}
-      />
+      <div>
+        <Plot
+          data={this.state.data}
+          layout={this.state.layout}
+        />
+        <Dropzone onDrop={this.onDropProblem}>
+          {({ getRootProps, getInputProps }) => (
+            <section className="container">
+              <div {...getRootProps({ className: 'dropzone' })}>
+                <input {...getInputProps()} />
+                <p>Drag & Drop problem json</p>
+              </div>
+            </section>
+          )}
+        </Dropzone>
+        <Dropzone onDrop={this.onDropAnswer}>
+          {({ getRootProps, getInputProps }) => (
+            <section className="container">
+              <div {...getRootProps({ className: 'dropzone' })}>
+                <input {...getInputProps()} />
+                <p>Drag & Drop answer json</p>
+              </div>
+            </section>
+          )}
+        </Dropzone>
+        <div>
+          problem = {JSON.stringify(this.state.problem)}
+        </div>
+        <div>
+          answer = {JSON.stringify(this.state.answer)}
+        </div>
+      </div>
     );
   }
 }
