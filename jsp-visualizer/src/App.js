@@ -33,11 +33,11 @@ class App extends React.Component {
   constructor() {
     super()
     this.config = {
-      title: "Rectangles Positioned Relative to the Plot and to the Axes",
+      title: "Jobshop Scheduling Problem Visualizer",
       height: 1200,
       width: 1600,
-      unit_height: 0.1,
-      unit_width: 0.1
+      unit_height: 1,
+      unit_width: 1
     };
     this.state = {
       problem: {},
@@ -120,13 +120,7 @@ class App extends React.Component {
   }
 
   data_json() {
-    const trace1 = {
-      x: [1.5, 3],
-      y: [2.5, 2.5],
-      text: ['Rectangle reference to the plot', 'Rectangle reference to the axes'],
-      mode: 'text'
-    };
-    return [trace1];
+    return [];
   }
 
   layout_json() {
