@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+.dropzone {
+  width : 600px;
+  height : 200px;
+  border : 2px dotted black;
+  text-align: center;
+}

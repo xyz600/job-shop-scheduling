@@ -2,6 +2,8 @@ import React from 'react';
 import Plot from 'react-plotly.js'
 import Dropzone from 'react-dropzone'
 
+import './App.css';
+
 class Rectangle {
   constructor(start_time, end_time, machine) {
     this.start_time = start_time;
@@ -170,22 +172,24 @@ class App extends React.Component {
           layout={this.state.layout}
           config={{ responsive: true }}
         />
-        <Dropzone onDrop={this.onDropProblem}>
+        <Dropzone className="dropzone" onDrop={this.onDropProblem}>
           {({ getRootProps, getInputProps }) => (
             <section className="container">
               <div {...getRootProps({ className: 'dropzone' })}>
                 <input {...getInputProps()} />
                 <p>Drag & Drop problem json</p>
+                <p>{this.is_problem_set() ? "problem is set." : ""}</p>
               </div>
             </section>
           )}
         </Dropzone>
-        <Dropzone onDrop={this.onDropAnswer}>
+        <Dropzone className="dropzone" onDrop={this.onDropAnswer}>
           {({ getRootProps, getInputProps }) => (
             <section className="container">
               <div {...getRootProps({ className: 'dropzone' })}>
                 <input {...getInputProps()} />
                 <p>Drag & Drop answer json</p>
+                <p>{this.is_answer_set() ? "answer is set." : ""}</p>
               </div>
             </section>
           )}
