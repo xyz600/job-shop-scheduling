@@ -18,8 +18,8 @@ class Rectangle {
       yref: 'y',
       x0: config.unit_width * this.start_time,
       x1: config.unit_width * this.end_time,
-      y0: config.unit_height * this.machine,
-      y1: config.unit_height * (this.machine + 1),
+      y0: config.unit_height * (this.machine - 1),
+      y1: config.unit_height * this.machine,
       line: {
         color: (this.selected ? 'rgb(0, 0, 0)' : 'rgb(55, 128, 191)'),
         width: 1
