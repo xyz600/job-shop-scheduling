@@ -65,7 +65,8 @@ class App extends React.Component {
       data: this.data_json(),
       layout: this.layout_json(),
       debug: true,
-      selected_job_id: 0
+      selected_job_id: 0,
+      hover: false
     };
   }
 
@@ -76,7 +77,7 @@ class App extends React.Component {
     return "process_list" in this.state.answer;
   }
 
-  setup_data = (layout, data, problem, answer, selected_job_id) => {
+  setup_data = (layout, data, problem, answer, selected_job_id, enable_hover) => {
     data.splice(0);
     layout.shapes.splice(0);
     answer.process_list.forEach((lst, idx) => {
@@ -93,7 +94,9 @@ class App extends React.Component {
           job_id
         );
         layout.shapes.push(rect.toLayoutJson(this.config));
-        data.push(rect.toDataJson(this.config));
+        if (enable_hover) {
+          data.push(rect.toDataJson(this.config));
+        }
       });
     });
     let max_time = 0;
@@ -114,7 +117,7 @@ class App extends React.Component {
       const cloned_layout = Object.assign(this.state.layout);
       const cloned_data = Object.assign(this.state.data);
       if (this.is_answer_set()) {
-        this.setup_data(cloned_layout, cloned_data, new_problem, this.state.answer, this.state.selected_job_id);
+        this.setup_data(cloned_layout, cloned_data, new_problem, this.state.answer, this.state.selected_job_id, this.state.hover);
       }
       this.setState({
         ...this.state,
@@ -132,7 +135,7 @@ class App extends React.Component {
       const cloned_layout = Object.assign(this.state.layout);
       const cloned_data = Object.assign(this.state.data);
       if (this.is_problem_set()) {
-        this.setup_data(cloned_layout, cloned_data, this.state.problem, new_answer, this.state.selected_job_id);
+        this.setup_data(cloned_layout, cloned_data, this.state.problem, new_answer, this.state.selected_job_id, this.state.hover);
       }
       this.setState({
         ...this.state,
@@ -150,13 +153,22 @@ class App extends React.Component {
       debug: !this.state.debug
     })
   }
+
+  onClickHoverCheckBox = () => {
+    this.setup_data(this.state.layout, this.state.data, this.state.problem, this.state.answer, this.state.selected_job_id, this.state.hover);
+    this.setState({
+      ...this.state,
+      hover: !this.state.hover
+    })
+  }
+
   onChangeJobIDSelect = (event) => {
     const selected_job_id = event.target.value;
 
     if (this.is_answer_set() && this.is_problem_set()) {
       const cloned_layout = Object.assign(this.state.layout);
       const cloned_data = Object.assign(this.state.data);
-      this.setup_data(cloned_layout, cloned_data, this.state.problem, this.state.answer, selected_job_id);
+      this.setup_data(cloned_layout, cloned_data, this.state.problem, this.state.answer, selected_job_id, this.state.hover);
 
       this.setState({
         ...this.state,
@@ -241,6 +253,9 @@ class App extends React.Component {
         <form>
           <input type="checkbox" name="debug" value="on" checked={this.state.debug} onChange={this.onClickDebugCheckBox}></input>
           <label> debug mode </label>
+          <br></br>
+          <input type="checkbox" name="hover" value="on" checked={this.state.hover} onChange={this.onClickHoverCheckBox}></input>
+          <label> hover operation info </label>
         </form>
         {this.debugInfo()}
       </div>
