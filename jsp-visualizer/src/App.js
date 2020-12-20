@@ -251,11 +251,11 @@ class App extends React.Component {
         <label>job_id:</label>
         <input type="text" name="enlighten_job" onChange={this.onChangeJobIDSelect} />
         <form>
-          <input type="checkbox" name="debug" value="on" checked={this.state.debug} onChange={this.onClickDebugCheckBox}></input>
-          <label> debug mode </label>
-          <br></br>
           <input type="checkbox" name="hover" value="on" checked={this.state.hover} onChange={this.onClickHoverCheckBox}></input>
           <label> hover operation info </label>
+          <br></br>
+          <input type="checkbox" name="debug" value="on" checked={this.state.debug} onChange={this.onClickDebugCheckBox}></input>
+          <label> debug mode </label>
         </form>
         {this.debugInfo()}
       </div>
