@@ -5,13 +5,15 @@ import Dropzone from 'react-dropzone'
 import './App.css';
 
 class Rectangle {
-  constructor(start_time, end_time, machine, selected) {
+  constructor(start_time, end_time, machine, selected, operation_id, job_id) {
     this.start_time = start_time;
     this.end_time = end_time;
     this.machine = machine;
     this.selected = selected;
+    this.operation_id = operation_id;
+    this.job_id = job_id;
   }
-  toJson(config) {
+  toLayoutJson(config) {
     return {
       type: 'rect',
       xref: 'x',
@@ -25,6 +27,23 @@ class Rectangle {
         width: 1
       },
       fillcolor: (this.selected ? 'rgba(0, 0, 0, 0.6)' : 'rgba(55, 128, 191, 0.6)')
+    };
+  }
+  toDataJson(config) {
+
+    const x0 = config.unit_width * this.start_time;
+    const x1 = config.unit_width * this.end_time;
+    const y0 = config.unit_height * (this.machine - 1);
+    const y1 = config.unit_height * this.machine;
+
+    return {
+      x: [x0, x0, x1, x1, x0],
+      y: [y0, y1, y1, y0, y0],
+      fill: "toself",
+      mode: "lines",
+      name: "",
+      text: "op_id = " + String(this.operation_id) + ", job_id = " + String(this.job_id),
+      opacity: 0
     };
   }
 }
@@ -57,19 +76,24 @@ class App extends React.Component {
     return "process_list" in this.state.answer;
   }
 
-  setup_data = (layout, problem, answer, selected_job_id) => {
+  setup_data = (layout, data, problem, answer, selected_job_id) => {
+    data.splice(0);
     layout.shapes.splice(0);
     answer.process_list.forEach((lst, idx) => {
       lst.forEach(elem => {
         const machine_id = idx + 1;
         const duration = problem.operations[elem.operation_id].time;
         const job_id = problem.operations[elem.operation_id].job;
-        layout.shapes.push(new Rectangle(
+        const rect = new Rectangle(
           elem.start_time,
           elem.start_time + duration,
           machine_id,
-          selected_job_id == job_id
-        ).toJson(this.config));
+          selected_job_id == job_id,
+          elem.operation_id,
+          job_id
+        );
+        layout.shapes.push(rect.toLayoutJson(this.config));
+        data.push(rect.toDataJson(this.config));
       });
     });
     let max_time = 0;
@@ -88,13 +112,15 @@ class App extends React.Component {
     reader.onloadend = () => {
       const new_problem = JSON.parse(reader.result);
       const cloned_layout = Object.assign(this.state.layout);
+      const cloned_data = Object.assign(this.state.data);
       if (this.is_answer_set()) {
-        this.setup_data(cloned_layout, new_problem, this.state.answer, this.state.selected_job_id);
+        this.setup_data(cloned_layout, cloned_data, new_problem, this.state.answer, this.state.selected_job_id);
       }
       this.setState({
         ...this.state,
         problem: new_problem,
-        layout: cloned_layout
+        layout: cloned_layout,
+        data: cloned_data
       })
     }
     reader.readAsText(files[0]);
@@ -104,13 +130,15 @@ class App extends React.Component {
     reader.onloadend = () => {
       const new_answer = JSON.parse(reader.result);
       const cloned_layout = Object.assign(this.state.layout);
+      const cloned_data = Object.assign(this.state.data);
       if (this.is_problem_set()) {
-        this.setup_data(cloned_layout, this.state.problem, new_answer, this.state.selected_job_id);
+        this.setup_data(cloned_layout, cloned_data, this.state.problem, new_answer, this.state.selected_job_id);
       }
       this.setState({
         ...this.state,
         answer: new_answer,
-        layout: cloned_layout
+        layout: cloned_layout,
+        data: cloned_data
       })
     }
     reader.readAsText(files[0]);
@@ -127,11 +155,13 @@ class App extends React.Component {
 
     if (this.is_answer_set() && this.is_problem_set()) {
       const cloned_layout = Object.assign(this.state.layout);
-      this.setup_data(cloned_layout, this.state.problem, this.state.answer, selected_job_id);
+      const cloned_data = Object.assign(this.state.data);
+      this.setup_data(cloned_layout, cloned_data, this.state.problem, this.state.answer, selected_job_id);
 
       this.setState({
         ...this.state,
         layout: cloned_layout,
+        data: cloned_data,
         selected_job_id: selected_job_id
       });
     }
@@ -146,7 +176,7 @@ class App extends React.Component {
       title: this.config.title,
       width: this.config.width,
       height: this.config.height,
-      shapes: [new Rectangle(1, 2, 1).toJson(this.config)],
+      shapes: [new Rectangle(1, 2, 1).toLayoutJson(this.config)],
       xaxis: {
         range: [0, 10]
       },
