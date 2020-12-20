@@ -5,10 +5,11 @@ import Dropzone from 'react-dropzone'
 import './App.css';
 
 class Rectangle {
-  constructor(start_time, end_time, machine) {
+  constructor(start_time, end_time, machine, selected) {
     this.start_time = start_time;
     this.end_time = end_time;
     this.machine = machine;
+    this.selected = selected;
   }
   toJson(config) {
     return {
@@ -20,10 +21,10 @@ class Rectangle {
       y0: config.unit_height * this.machine,
       y1: config.unit_height * (this.machine + 1),
       line: {
-        color: 'rgb(55, 128, 191)',
+        color: (this.selected ? 'rgb(0, 0, 0)' : 'rgb(55, 128, 191)'),
         width: 1
       },
-      fillcolor: 'rgba(55, 128, 191, 0.6)'
+      fillcolor: (this.selected ? 'rgba(0, 0, 0, 0.6)' : 'rgba(55, 128, 191, 0.6)')
     };
   }
 }
@@ -44,7 +45,8 @@ class App extends React.Component {
       answer: {},
       data: this.data_json(),
       layout: this.layout_json(),
-      debug: true
+      debug: true,
+      selected_job_id: 0
     };
   }
 
@@ -55,16 +57,18 @@ class App extends React.Component {
     return "process_list" in this.state.answer;
   }
 
-  setup_data = (layout, problem, answer) => {
+  setup_data = (layout, problem, answer, selected_job_id) => {
     layout.shapes.splice(0);
     answer.process_list.forEach((lst, idx) => {
       lst.forEach(elem => {
         const machine_id = idx + 1;
         const duration = problem.operations[elem.operation_id].time;
+        const job_id = problem.operations[elem.operation_id].job;
         layout.shapes.push(new Rectangle(
           elem.start_time,
           elem.start_time + duration,
-          machine_id
+          machine_id,
+          selected_job_id == job_id
         ).toJson(this.config));
       });
     });
@@ -85,7 +89,7 @@ class App extends React.Component {
       const new_problem = JSON.parse(reader.result);
       const cloned_layout = Object.assign(this.state.layout);
       if (this.is_answer_set()) {
-        this.setup_data(cloned_layout, new_problem, this.state.answer);
+        this.setup_data(cloned_layout, new_problem, this.state.answer, this.state.selected_job_id);
       }
       this.setState({
         ...this.state,
@@ -101,7 +105,7 @@ class App extends React.Component {
       const new_answer = JSON.parse(reader.result);
       const cloned_layout = Object.assign(this.state.layout);
       if (this.is_problem_set()) {
-        this.setup_data(cloned_layout, this.state.problem, new_answer);
+        this.setup_data(cloned_layout, this.state.problem, new_answer, this.state.selected_job_id);
       }
       this.setState({
         ...this.state,
@@ -117,6 +121,20 @@ class App extends React.Component {
       ...this.state,
       debug: !this.state.debug
     })
+  }
+  onChangeJobIDSelect = (event) => {
+    const selected_job_id = event.target.value;
+
+    if (this.is_answer_set() && this.is_problem_set()) {
+      const cloned_layout = Object.assign(this.state.layout);
+      this.setup_data(cloned_layout, this.state.problem, this.state.answer, selected_job_id);
+
+      this.setState({
+        ...this.state,
+        layout: cloned_layout,
+        selected_job_id: selected_job_id
+      });
+    }
   }
 
   data_json() {
@@ -188,6 +206,8 @@ class App extends React.Component {
             </section>
           )}
         </Dropzone>
+        <label>job_id:</label>
+        <input type="text" name="enlighten_job" onChange={this.onChangeJobIDSelect} />
         <form>
           <input type="checkbox" name="debug" value="on" checked={this.state.debug} onChange={this.onClickDebugCheckBox}></input>
           <label> debug mode </label>
