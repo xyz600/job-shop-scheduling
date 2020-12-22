@@ -81,7 +81,7 @@ class App extends React.Component {
     data.splice(0);
     layout.shapes.splice(0);
     answer.process_list.forEach((lst, idx) => {
-      lst.forEach(elem => {
+      lst.forEach((elem, elem_idx) => {
         const machine_id = idx + 1;
         const duration = problem.operations[elem.operation_id].time;
         const job_id = problem.operations[elem.operation_id].job;
@@ -94,8 +94,17 @@ class App extends React.Component {
           job_id
         );
         layout.shapes.push(rect.toLayoutJson(this.config));
+        let threashold = 0;
         if (enable_hover) {
-          data.push(rect.toDataJson(this.config));
+          if (elem_idx > 0) {
+            const prev_op = lst[elem_idx - 1];
+            const duration = problem.operations[prev_op.operation_id].time;
+            threashold = prev_op.start_time + duration;
+          }
+          // 前に隙間がある場合は登録
+          if (threashold < elem.start_time) {
+            data.push(rect.toDataJson(this.config));
+          }
         }
       });
     });
