@@ -7,15 +7,21 @@ GT-Algorithm を用いて、スケジュールを算出し、visualizer  で確�
 
 ### 問題
 
-```json
+```json5
 {
   "job_size": 100,
   "machine_size": 20,
   "operation_table": [
-      [job 0 の operation_id],
-      [job 1 の operation_id],
-      ...
-      [job 99 の operation_id]
+      [
+        // job 0 の operation_id
+      ],
+      [
+        // job 1 の operation_id
+      ],
+      // ...
+      [
+        // job 99 の operation_id
+      ]
   ],
   "operations": [
     {
@@ -24,7 +30,7 @@ GT-Algorithm を用いて、スケジュールを算出し、visualizer  で確�
       "machine": 12,
       "time": 83
     },
-    ...
+    // ...
     {
       "id": 1999,
       "job": 99,
@@ -50,7 +56,7 @@ GT-Algorithm を用いて、スケジュールを算出し、visualizer  で確�
 
 ### 解
 
-```json
+```json5
 {
   "process_list": [
     [
@@ -59,7 +65,7 @@ GT-Algorithm を用いて、スケジュールを算出し、visualizer  で確�
         "operation_id": 20,
         "start_time": 0
       },
-      ...
+      // ...
     ],
     [
       // machine 1 でこなす operation の情報
@@ -67,9 +73,9 @@ GT-Algorithm を用いて、スケジュールを算出し、visualizer  で確�
         "operation_id": 1040,
         "start_time": 0
       },
-      ...
+      // ...
     ]
-    ...
+    // ...
   ]
 }
 ```
