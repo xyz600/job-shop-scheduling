@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/job-shop-scheduling/static/css/main.e7480aaa.chunk.css",
+    "main.js": "/job-shop-scheduling/static/js/main.c9608744.chunk.js",
+    "main.js.map": "/job-shop-scheduling/static/js/main.c9608744.chunk.js.map",
+    "runtime-main.js": "/job-shop-scheduling/static/js/runtime-main.69856b0e.js",
+    "runtime-main.js.map": "/job-shop-scheduling/static/js/runtime-main.69856b0e.js.map",
+    "static/js/2.72f5c190.chunk.js": "/job-shop-scheduling/static/js/2.72f5c190.chunk.js",
+    "static/js/2.72f5c190.chunk.js.map": "/job-shop-scheduling/static/js/2.72f5c190.chunk.js.map",
+    "static/js/3.652c87ba.chunk.js": "/job-shop-scheduling/static/js/3.652c87ba.chunk.js",
+    "static/js/3.652c87ba.chunk.js.map": "/job-shop-scheduling/static/js/3.652c87ba.chunk.js.map",
+    "index.html": "/job-shop-scheduling/index.html",
+    "static/css/main.e7480aaa.chunk.css.map": "/job-shop-scheduling/static/css/main.e7480aaa.chunk.css.map",
+    "static/js/2.72f5c190.chunk.js.LICENSE.txt": "/job-shop-scheduling/static/js/2.72f5c190.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.69856b0e.js",
+    "static/js/2.72f5c190.chunk.js",
+    "static/css/main.e7480aaa.chunk.css",
+    "static/js/main.c9608744.chunk.js"
+  ]
+}
